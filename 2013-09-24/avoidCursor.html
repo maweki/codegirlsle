@@ -4,45 +4,47 @@
 <title>Avoid Me</title>
 </head>
 <body>
-<canvas id="c" width="500" height="500"></canvas>
+<canvas id="c" width="500" height="500" style="border: 1px solid black;"></canvas>
 <script>
 
-var mouse = {x:1,y:1};
-var ca = document.getElementById("c");
-var ctx = ca.getContext("2d");
-var pos = {x:ca.width/2,y:ca.height/2};
+var 	mouse = {x:1,y:1},
+	ca = document.getElementById("c"),
+	ctx = ca.getContext("2d"),
+	v = {x: 1, y: 1},
+	pos,
+	init = function() {
+		ctx.clearRect (0, 0 , ca.width, ca.height);
+		pos = {x:ca.width/2,y:ca.height/2};
+	},
+	lengthVector = function(vec) {
+		return Math.sqrt(vec.x*vec.x + vec.y*vec.y);
+	},
+	addVec = function(vec1, vec2) {
+		return {x: vec1.x + vec2.x, y: vec1.y + vec2.y}
+	},
+	normalizeVector = function(vec) {
+		return {x: vec.x/lengthVector(vec), y:vec.y/lengthVector(vec)};
+	},
+	mergeVector = function(vec1, vec2) {
+		return {x: 0.9*vec1.x + 0.1*vec2.x, y:0.9*vec1.y + 0.1*vec2.y}
+	},
+	invertVector = function(vec) {
+		return {x:-1*vec.x,y:-1*vec.y};
+	},
+	move = function() {
+		v = mergeVector(normalizeVector(v),normalizeVector(mouse));
+		pos = addVec(pos, invertVector(v));
+		ctx.fillRect(pos.x, pos.y, 1, 1);
+		if (pos.x < 0 || pos.y < 0 || pos.x > ca.width || pos.y > ca.height) {
+			init();
+		}
+	};
 
 ca.onmousemove = function(ev) {
 	mouse = {x: ev.clientX - pos.x, y:ev.clientY - pos.y};	
 };
 
-var v = {x: 1, y: 1},
-lengthVector = function(vec) {
-	return Math.sqrt(vec.x*vec.x + vec.y*vec.y);
-},
-addVec = function(vec1, vec2) {
-	return {x: vec1.x + vec2.x, y: vec1.y + vec2.y}
-},
-normalizeVector = function(vec) {
-	return {x: vec.x/lengthVector(vec), y:vec.y/lengthVector(vec)};
-},
-mergeVector = function(vec1, vec2) {
-	return {x: 0.9*vec1.x + 0.1*vec2.x, y:0.9*vec1.y + 0.1*vec2.y}
-},
-invertVector = function(vec) {
-	return {x:-1*vec.x,y:-1*vec.y};
-},
-move = function() {
-	v = mergeVector(normalizeVector(v),normalizeVector(mouse));
-	pos = addVec(pos, invertVector(v));
-	ctx.fillRect(pos.x, pos.y, 1, 1);
-	if (pos.x < 0 || pos.y < 0 || pos.x > ca.width || pos.y > ca.height) {
-		ctx.clearRect (0, 0 , ca.width, ca.height);
-		pos = {x:ca.width/2,y:ca.height/2};
-	}
-};
-
-
+init();
 setInterval(move, 50);
 
 </script>
